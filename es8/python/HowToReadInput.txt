@@ -1,0 +1,11 @@
+ReadInput >> nblk; //number of blocks
+ReadInput >> nstep; //number of steps per block
+ReadInput >> d; //step of the metropolis algorithm of the energy
+ReadInput >> delta_SA; //step for moving the parameters by simulated annealing
+ReadInput >> SA_nstep; //step to do for the SA algorithm before changing the temperature
+ReadInput >> nstep_equilibrium //number of steps needed for equilibrium in the metropolis algorithm of the energy
+ReadInput >> mu; //mu of the first trial wave function
+ReadInput >> sigma; //sigma of the first trial wave function
+ReadInput >> T_min; //minimum temperature
+ReadInput >> T_max; //maximum temperature
+ReadInput >> n_temp; //number of temperatures for simulated annealing

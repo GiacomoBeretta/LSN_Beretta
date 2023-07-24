@@ -1,0 +1,236 @@
+void TestEquilibrium()
+{
+	cout << "testing if the system has reached equilibrium measuring if temperature variations are greater than the final Standard Deviation of the Mean ..." << endl << endl;
+	
+	transform( temp_variations.begin(), temp_variations.end(), temp_variations.begin(), [](double c){ return fabs( c-glob_av[it]/(double)iblk ); } );
+
+	int iblk_equi = 1;
+
+	vector<double> temp_ave;
+	double sum;
+	
+	for(int i=1; i<=nblk;)
+	{	
+		sum = 0;
+		sum += temp_variations[i-1];
+		sum 
+		i += 4;
+	
+		cout << "iblk=" << i <<endl;
+		cout << "temp_var="<<temp_variations[i-1]<<endl;
+		cout << "err_temp="<<err_temp<<endl;
+		if(temp_variations[i-1] < err_temp){
+			iblk_equi = i;
+			equilibrium = true;
+			break;
+		}else
+		{
+			equilibrium = false;
+		}
+	}
+	
+	if(equilibrium)
+	{
+		cout << "---> equilibrium reached at the block = "<< iblk_equi << endl;
+		RestartFromIndex(iblk_equi);
+	}else
+	{
+		cout << "equilibrium not found after " << nblk << " blocks" << endl;
+		exit(-1);
+	}
+}
+
+void RestartFromIndex(int restart_blk)
+{
+	cout << "deleting the values found until the block = " << restart_blk - 1 << " and restarting the simulation from the last block, mantaining the values obtained from " << restart_blk << endl;
+
+	iblk = 1;
+	Reset();
+	
+	ifstream Read_Epot, Read_Ekin, Read_Etot, Read_Temp, Read_Pres;
+	ofstream Write_Epot, Write_Ekin, Write_Etot, Write_Temp, Write_Pres;
+	
+	Read_Epot.open("/mnt/c/Users/giaco/esercizi_python/4/output_epot.dat");
+	Read_Ekin.open("/mnt/c/Users/giaco/esercizi_python/4/output_ekin.dat");
+	Read_Temp.open("/mnt/c/Users/giaco/esercizi_python/4/output_temp.dat");
+	Read_Etot.open("/mnt/c/Users/giaco/esercizi_python/4/output_etot.dat");
+	Read_Pres.open("/mnt/c/Users/giaco/esercizi_python/4/output_pres.dat");
+
+	Write_Epot.open("/mnt/c/Users/giaco/esercizi_python/4/output_epot_2.dat");
+	Write_Ekin.open("/mnt/c/Users/giaco/esercizi_python/4/output_ekin_2.dat");
+	Write_Temp.open("/mnt/c/Users/giaco/esercizi_python/4/output_temp_2.dat");
+	Write_Etot.open("/mnt/c/Users/giaco/esercizi_python/4/output_etot_2.dat");
+	Write_Pres.open("/mnt/c/Users/giaco/esercizi_python/4/output_pres_2.dat");
+
+	string s;
+	for(int i=0; i<restart_blk-1; i++)
+	{
+		getline(Read_Epot, s);
+		getline(Read_Ekin, s);
+		getline(Read_Temp, s);
+		getline(Read_Etot, s);
+		getline(Read_Pres, s);
+	}
+
+	istringstream stream(s);
+	for(int i=restart_blk-1; i<nblk; i++){
+
+		getline(Read_Epot, s);
+		stream.str(s);
+		stream >> s;
+		cout<<"s="<<s<<endl; 
+		stima_pot = stod(s);
+		stream.clear();//da provare se funziona senza clear
+		
+		getline(Read_Ekin, s);
+		stream.str(s);
+		stream >> s; 
+		stream >> s;
+		stima_kin = stod(s);
+		stream.clear();
+
+		getline(Read_Temp, s);
+		stream.str(s);
+		stream >> s; 
+		stream >> s;
+		stima_temp = stod(s);
+		stream.clear();
+
+		getline(Read_Etot, s);
+		stream.str(s);
+		stream >> s; 
+		stream >> s;
+		stima_etot = stod(s);
+		stream.clear();
+
+		getline(Read_Pres, s);
+		stream.str(s);
+		stream >> s; 
+		stream >> s;
+		stima_pres = stod(s);
+		stream.clear();
+		
+	    glob_av[iv] += stima_pot;
+	    glob_av2[iv] += stima_pot*stima_pot;
+	    err_pot=Error(glob_av[iv],glob_av2[iv],iblk);
+
+	    glob_av[ik] += stima_kin;
+	    glob_av2[ik] += stima_kin*stima_kin;
+	    err_kin=Error(glob_av[ik],glob_av2[ik],iblk);
+	
+	    glob_av[ie] += stima_etot;
+	    glob_av2[ie] += stima_etot*stima_etot;
+	    err_etot=Error(glob_av[ie],glob_av2[ie],iblk);
+	
+	    glob_av[it] += stima_temp;
+	    glob_av2[it] += stima_temp*stima_temp;
+	    err_temp=Error(glob_av[it],glob_av2[it],iblk);
+	
+	    glob_av[ip] += stima_pres;
+	    glob_av2[ip] += stima_pres*stima_pres;
+	    err_pres=Error(glob_av[ip],glob_av2[ip],iblk);
+
+		const int wd=12;
+	//Potential energy per particle
+	    Write_Epot << setw(wd) << iblk <<  setw(wd) << stima_pot << setw(wd) << glob_av[iv]/(double)iblk << setw(wd) << err_pot << endl;
+	//Kinetic energy
+	    Write_Ekin << setw(wd) << iblk <<  setw(wd) << stima_kin << setw(wd) << glob_av[ik]/(double)iblk << setw(wd) << err_kin << endl;
+	//Total energy
+	    Write_Etot << setw(wd) << iblk <<  setw(wd) << stima_etot << setw(wd) << glob_av[ie]/(double)iblk << setw(wd) << err_etot << endl;
+	//Temperature
+	    Write_Temp << setw(wd) << iblk <<  setw(wd) << stima_temp << setw(wd) << glob_av[it]/(double)iblk << setw(wd) << err_temp << endl;
+	//Temperature
+	    Write_Pres << setw(wd) << iblk <<  setw(wd) << stima_pres << setw(wd) << glob_av[ip]/(double)iblk << setw(wd) << err_pres << endl;
+	
+		iblk++;
+	}	
+	iblk--;
+	
+	Read_Epot.close();
+	Read_Ekin.close();
+	Read_Etot.close();
+	Read_Temp.close();
+	Read_Pres.close();
+
+	Write_Epot.close();
+	Write_Ekin.close();
+	Write_Etot.close();
+	Write_Temp.close();
+	Write_Pres.close();
+
+	//ClearFiles();	
+
+	CopyFile("/mnt/c/Users/giaco/esercizi_python/4/output_epot_2.dat", "/mnt/c/Users/giaco/esercizi_python/4/output_epot.dat");
+	CopyFile("/mnt/c/Users/giaco/esercizi_python/4/output_ekin_2.dat", "/mnt/c/Users/giaco/esercizi_python/4/output_ekin.dat");
+	CopyFile("/mnt/c/Users/giaco/esercizi_python/4/output_temp_2.dat", "/mnt/c/Users/giaco/esercizi_python/4/output_temp.dat");
+	CopyFile("/mnt/c/Users/giaco/esercizi_python/4/output_etot_2.dat", "/mnt/c/Users/giaco/esercizi_python/4/output_etot.dat");
+	CopyFile("/mnt/c/Users/giaco/esercizi_python/4/output_pres_2.dat", "/mnt/c/Users/giaco/esercizi_python/4/output_pres.dat");
+}
+
+void CopyFile(string filename1, string filename2)
+{
+	ifstream input;
+	input.open(filename1);
+
+	ofstream output;
+	output.open(filename2);
+
+	string s;
+	while( !input.eof() )
+	{
+		getline(input, s);
+		output << s << endl;
+	}
+
+	input.close();
+	output.close();
+}
+
+string Get2ndElement(string s)
+{
+	istringstream stream(s);
+	string s2
+	stream>>s2;
+	stream>>s2;
+	return s2;
+}
+
+void ClearFiles(void)
+{
+	cout << "deleting output files with averages" << endl << endl;
+
+	int a;
+
+	ofstream Epot, Ekin, Etot, Temp, Pres;
+	
+	string epot_name = "/mnt/c/Users/giaco/esercizi_python/4/output_epot_" + state + ".dat";
+	string ekin_name = "/mnt/c/Users/giaco/esercizi_python/4/output_ekin_" + state + ".dat";
+	string temp_name = "/mnt/c/Users/giaco/esercizi_python/4/output_temp_" + state + ".dat";
+	string etot_name = "/mnt/c/Users/giaco/esercizi_python/4/output_etot_" + state + ".dat";
+	string pres_name = "/mnt/c/Users/giaco/esercizi_python/4/output_pres_" + state + ".dat";
+
+    Epot.open(epot_name.c_str());
+    Ekin.open(ekin_name.c_str());
+    Temp.open(temp_name.c_str());
+    Etot.open(etot_name.c_str());
+    Pres.open(pres_name.c_str());
+
+	Epot.close();
+    Ekin.close();
+    Etot.close();
+    Temp.close();
+    Pres.close();
+
+    
+	a = remove(epot_name.c_str());
+    a += remove(ekin_name.c_str());
+    a += remove(temp_name.c_str());
+    a += remove(etot_name.c_str());
+    a += remove(pres_name.c_str());
+
+	if(a != 0)
+	{
+		cout<<"error during deletion of files" << endl;
+		exit(-1);
+	}    
+}

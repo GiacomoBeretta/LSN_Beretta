@@ -1,0 +1,12 @@
+ReadInput >> restart; //if restart=0 it starts from the begininning otherwise it starts from a previous configuration
+ReadInput >> nspin; //number of spins in the ising model
+ReadInput >> J; //exchange interaction
+ReadInput >> h; //external magnetic field
+ReadInput >> metro; //if metro=1 it works with the metropolis sampling otherwise with the gibbs sampling
+ReadInput >> nblk; //number of blocks
+ReadInput >> nstep; //number of steps in each block
+ReadInput >> temp_min; //minimum temperature
+ReadInput >> temp_max; //maximum temperature
+ReadInput >> n_points; //number of measurements written in the output file with progressive values of the temperature
+ReadInput >> nblk_equilibrium; //number of blocks needed for equilibrium
+ReadInput >> autocor_on; //if autocor_on == 0 it doesn't compute the autocorrelation function and doesn't print the block values

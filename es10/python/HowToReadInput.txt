@@ -1,0 +1,8 @@
+input >> n_cities; //number of cities
+input >> norm_power; //power of the norm for the computation of path length
+input >> restart; //if restart==1 the simulation starts from a new configuration
+input >> temp_min; //minimum temperature
+input >> temp_max; //maximum temperature
+input >> n_temp; //number of temperatures
+input >> config; //config=circumference/square/american_capitals
+input >> nstep; //number of steps

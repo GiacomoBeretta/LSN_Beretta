@@ -1,0 +1,8 @@
+input >> prob_mutation; //probability of mutation
+input >> prob_crossover; //probability of crossing over
+input >> n_cities; //number of cities
+input >> pop_size; //size of population
+input >> norm_power; //power of the distance
+input >> n_generations; //number of generations
+input >> restart; //restart==1 restart the simulation, else take paths from file
+input >> config; // config==circumference/square

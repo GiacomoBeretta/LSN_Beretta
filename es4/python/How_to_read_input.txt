@@ -1,0 +1,10 @@
+  ReadInput >> iNVET; 0=MD(NVE) 1=MC(NVT)
+  ReadInput >> restart; 1=restart, 0=start from seed.out and read config.out and velocity.out
+  ReadInput >> temp; //temperature in LJ unit
+  ReadInput >> npart; //number of particles
+  ReadInput >> rho; //density i.e. particles/volume in LJ unit
+  ReadInput >> rcut; //r of cutoff in LJ unit
+  ReadInput >> delta; //time step for integration 0.0005/0.2
+  ReadInput >> nblk; //number of blocks
+  ReadInput >> nstep; //number of steps in one block
+  ReadInput >> nstart; //number of steps necessary before measuring
